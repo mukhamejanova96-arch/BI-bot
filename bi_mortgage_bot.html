@@ -150,7 +150,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#EEF3FA;
 // ═══════════════════════════════════════════
 //  НАСТРОЙКИ — вставьте ваш API ключ
 // ═══════════════════════════════════════════
-const API_KEY = 'AQ.Ab8RN6J2NNzP3QcRIW8KsU9Zi7VceS8DqvG3ZjZem2GZ5eFqTA';
+const API_KEY = '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';
 const DATA_URL = 'data.json'; // путь к файлу данных
 
 // ═══════════════════════════════════════════
@@ -295,25 +295,24 @@ async function reply(txt) {
   hist.push({ role: 'user', content: `[Шаг: ${stepLabel}] ${txt}` });
 
   try {
-    const geminiHist = hist.map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    }));
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: buildSystem() }] },
-          contents: geminiHist,
-          generationConfig: { maxOutputTokens: 500, temperature: 0.7 }
-        })
-      }
-    );
+    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+        'HTTP-Referer': 'https://mukhamejanova96-arch.github.io',
+        'X-Title': 'BI Mortgage Bot'
+      },
+      body: JSON.stringify({
+        model: 'deepseek/deepseek-r1-0528:free',
+        messages: [
+          { role: 'system', content: buildSystem() },
+          ...hist
+        ]
+      })
+    });
     const data = await r.json();
-    const ans = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                data.error?.message || 'Ошибка, попробуйте снова.';
+    const ans = data.choices?.[0]?.message?.content || data.error?.message || 'Ошибка, попробуйте снова.';
     hist.push({ role: 'assistant', content: ans });
     typ.style.display = 'none';
     addBot(ans);
