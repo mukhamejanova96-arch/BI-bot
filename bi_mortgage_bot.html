@@ -150,8 +150,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#EEF3FA;
 // ═══════════════════════════════════════════
 //  НАСТРОЙКИ — вставьте ваш API ключ
 // ═══════════════════════════════════════════
-const API_KEY = 'cfk_NbsJn4JXrOQSMsJwHAv6aHh3dnLE1bNoJz13W6Sq51b3c15a';
-const CF_ACCOUNT = '6a82d4d8a6117cfe3b9a206d0381f38f';
+// Proxy: throbbing-meadow-1ce3.mukhamejanova96.workers.dev
 const DATA_URL = 'data.json'; // путь к файлу данных
 
 // ═══════════════════════════════════════════
@@ -296,22 +295,16 @@ async function reply(txt) {
   hist.push({ role: 'user', content: `[Шаг: ${stepLabel}] ${txt}` });
 
   try {
-    const r = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/ai/run/@cf/meta/llama-3.1-8b-instruct`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`
-        },
-        body: JSON.stringify({
-          messages: [
-            { role: 'system', content: buildSystem() },
-            ...hist
-          ]
-        })
-      }
-    );
+    const r = await fetch('https://throbbing-meadow-1ce3.mukhamejanova96.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [
+          { role: 'system', content: buildSystem() },
+          ...hist
+        ]
+      })
+    });
     const data = await r.json();
     const ans = data.result?.response || data.errors?.[0]?.message || 'Ошибка, попробуйте снова.';
     hist.push({ role: 'assistant', content: ans });
