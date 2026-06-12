@@ -150,7 +150,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:#EEF3FA;
 // ═══════════════════════════════════════════
 //  НАСТРОЙКИ — вставьте ваш API ключ
 // ═══════════════════════════════════════════
-const API_KEY = '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';
+const API_KEY = 'cfk_NbsJn4JXrOQSMsJwHAv6aHh3dnLE1bNoJz13W6Sq51b3c15a';
+const CF_ACCOUNT = '6a82d4d8a6117cfe3b9a206d0381f38f';
 const DATA_URL = 'data.json'; // путь к файлу данных
 
 // ═══════════════════════════════════════════
@@ -295,24 +296,24 @@ async function reply(txt) {
   hist.push({ role: 'user', content: `[Шаг: ${stepLabel}] ${txt}` });
 
   try {
-    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-        'HTTP-Referer': 'https://mukhamejanova96-arch.github.io',
-        'X-Title': 'BI Mortgage Bot'
-      },
-      body: JSON.stringify({
-        model: 'deepseek/deepseek-r1-0528:free',
-        messages: [
-          { role: 'system', content: buildSystem() },
-          ...hist
-        ]
-      })
-    });
+    const r = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/ai/run/@cf/meta/llama-3.1-8b-instruct`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          messages: [
+            { role: 'system', content: buildSystem() },
+            ...hist
+          ]
+        })
+      }
+    );
     const data = await r.json();
-    const ans = data.choices?.[0]?.message?.content || data.error?.message || 'Ошибка, попробуйте снова.';
+    const ans = data.result?.response || data.errors?.[0]?.message || 'Ошибка, попробуйте снова.';
     hist.push({ role: 'assistant', content: ans });
     typ.style.display = 'none';
     addBot(ans);
